@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Particles + Playlist (Embed)</title>
+
+  <!-- p5 只需要一份 -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.3/lib/p5.min.js"></script>
+
+  <style>
+    html, body { margin:0; padding:0; background:#0b0f1a; overflow:hidden; }
+    #hint {
+      position:fixed; left:16px; top:14px; color:#9fb3ff; font:14px/1.4 system-ui,Arial;
+      background:rgba(255,255,255,0.06); padding:8px 10px; border-radius:10px; user-select:none;
+      backdrop-filter: blur(4px);
+    }
+    #player {
+      position: fixed; right: 16px; bottom: 16px; z-index: 9999;
+      color:#e8ecff; font:14px system-ui,Arial;
+      background:rgba(255,255,255,0.06); padding:10px 12px; border-radius:12px;
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap; backdrop-filter: blur(6px);
+    }
+    #player select, #player button { background:rgba(255,255,255,0.12); color:#e8ecff; border:0; border-radius:8px; padding:6px 8px; }
+    #player option { color:#eee; background:#1a1d25; }
+    #embedWrap{
+      position: fixed; right: 16px; bottom: 78px;
+      width: min(520px, 45vw); height: min(300px, 32vh);
+      background: rgba(255,255,255,0.06); border-radius: 12px; overflow: hidden;
+      display: none; backdrop-filter: blur(6px);
+    }
+    #embed { width:100%; height:100%; border:0; }
+  </style>
+
+  <!-- 可编辑词库面板 -->
+  <div id="wordPanel" style="
+    position:fixed; left:16px; top:90px; z-index:9999;
+    width:min(360px, 42vw); background:rgba(255,255,255,0.06);
+    border-radius:12px; padding:10px; color:#cfe0ff; backdrop-filter:blur(6px);
+  ">
+    <div style="font:14px/1.2 system-ui">词库（每行一个词；支持中英德日等）</div>
+    <textarea id="wordInput" rows="6" style="
+      width:100%; margin-top:6px; background:rgba(0,0,0,0.25); color:#e8ecff;
+      border:0; border-radius:8px; padding:8px; font:14px/1.4 system-ui,Arial;
+    "></textarea>
+    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
+      <button id="applyWords"  style="background:rgba(255,255,255,0.12);color:#fff;border:0;border-radius:8px;padding:6px 10px;cursor:pointer">应用并保存</button>
+      <button id="resetWords"  style="background:rgba(255,255,255,0.12);color:#fff;border:0;border-radius:8px;padding:6px 10px;cursor:pointer">恢复默认</button>
+      <button id="exportWords" style="background:rgba(255,255,255,0.12);color:#fff;border:0;border-radius:8px;padding:6px 10px;cursor:pointer">导出JSON</button>
+      <label style="background:rgba(255,255,255,0.12);color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer">
+        导入JSON<input id="importWords" type="file" accept="application/json" style="display:none">
+      </label>
+    </div>
+  </div>
+
+
+  <!-- 业务脚本只引入一次 -->
+  <script src="words.js"></script>
+  <script src="songs.js"></script>
+  <script src="sketch.js"></script>
+</head>
+<body>
+  <div id="hint">
+     点击播放键开始播放音乐，支持YouTube / Spotify / SoundCloud / 网易云 / Bilibili链接<br/>点击界面撒粒子 长按撒很多粒子✨<br/>按 C 清屏，T 切换是否显示文字
+  </div>
+
+  <div id="player">
+    <span id="title">未播放</span>
+    <select id="playlist"></select>
+    <button id="prev">⏮︎</button>
+    <button id="play">▶️</button>
+    <button id="next">⏭︎</button>
+    <input id="addTitle" placeholder="标题(可选)" style="background:rgba(255,255,255,0.12);color:#e8ecff;border:0;border-radius:8px;padding:6px 8px;width:160px;">
+    <input id="addUrl" placeholder="粘贴链接(YouTube/Spotify...)" style="background:rgba(255,255,255,0.12);color:#e8ecff;border:0;border-radius:8px;padding:6px 8px;width:280px;">
+    <button id="addLink">＋ 添加链接</button>
+
+  </div>
+
+  <div id="embedWrap">
+    <iframe id="embed"
+      allow="autoplay; encrypted-media; picture-in-picture"
+      referrerpolicy="strict-origin-when-cross-origin"
+      loading="lazy"></iframe>
+  </div>
+</body>
+</html>
